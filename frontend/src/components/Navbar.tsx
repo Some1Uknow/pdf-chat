@@ -40,16 +40,6 @@ const Navbar = () => {
             }
           ></span>
         </div>
-        <div className="group font-semibold relative pb-1">
-          <a href="/files">My Files</a>
-          <span
-            className={
-              location.pathname === "/files"
-                ? "h-1 w-full bg-red-600 absolute top-6 left-0"
-                : "h-1 w-0 bg-red-600 group-hover:w-full transition-all ease-in-out duration-300 absolute top-6 left-0"
-            }
-          ></span>
-        </div>
       </div>
     </nav>
   );
