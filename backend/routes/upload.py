@@ -1,9 +1,10 @@
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile, HTTPException
 import shutil
 import os
 from dotenv import load_dotenv
 from utils.storemeta import store_meta
 from utils.storedata import store_data
+import magic
 
 # Load environment variables
 load_dotenv()
@@ -14,27 +15,55 @@ router = APIRouter()
 UPLOAD_DIRECTORY = "uploads"
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-# Default route for file upload
+# Maximum file size (10MB)
+MAX_FILE_SIZE = 10 * 1024 * 1024
+
 @router.post("")
 async def upload(file: UploadFile = File(...), user_gmail: str = ""):
-    # Define the path to save the uploaded file
-    file_location = os.path.join(UPLOAD_DIRECTORY, file.filename)
+    # Check file size
+    file.file.seek(0, 2)  # Seek to end of file
+    file_size = file.file.tell()  # Get current position (file size)
+    file.file.seek(0)  # Reset file position
     
-    # Write the file to the uploads directory
-    with open(file_location, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large. Maximum size is 10MB.")
     
-    # Calculate file size
-    file_size = os.path.getsize(file_location)
+    # Verify file type
+    file_content = await file.read(2048)  # Read first 2048 bytes for MIME detection
+    mime = magic.Magic(mime=True)
+    file_type = mime.from_buffer(file_content)
     
-    # Store metadata in the database and retrieve the file_id
-    file_id = store_meta(file_location, file.filename, file_size, file.content_type, user_gmail)
+    if file_type != 'application/pdf':
+        raise HTTPException(status_code=415, detail="Only PDF files are allowed.")
     
-    # Pass file_id to store_data to associate embeddings with this file
-    store_data(file_location, file_id)
-
-    return {
-        "message": "File uploaded and processed successfully",
-        "file_location": file_location,
-        "file_id": file_id
-    }
+    # Reset file position after reading
+    await file.seek(0)
+    
+    try:
+        # Define the path to save the uploaded file
+        file_location = os.path.join(UPLOAD_DIRECTORY, file.filename)
+        
+        # Write the file to the uploads directory
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        # Store metadata in the database and retrieve the file_id
+        file_id = store_meta(file_location, file.filename, file_size, file_type, user_gmail)
+        
+        if not file_id:
+            raise HTTPException(status_code=500, detail="Failed to store file metadata")
+        
+        # Process and store file data
+        await store_data(file_location, file_id)
+        
+        return {
+            "message": "File uploaded and processed successfully",
+            "file_location": file_location,
+            "file_id": file_id
+        }
+        
+    except Exception as e:
+        # Clean up the file if it was uploaded
+        if os.path.exists(file_location):
+            os.remove(file_location)
+        raise HTTPException(status_code=500, detail=str(e))

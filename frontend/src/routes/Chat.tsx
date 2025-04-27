@@ -42,7 +42,7 @@ export default function Component() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/chat", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: inputMessage }),
@@ -73,7 +73,7 @@ export default function Component() {
   const handleClearMemory = async () => {
     toast.dismiss();
     toast.loading("Clearing memory...");
-    const response = await fetch("http://localhost:8000/chat/clear", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/chat/clear`, {
       method: "GET",
     });
 
@@ -100,7 +100,7 @@ export default function Component() {
       formData.append("file", file);
 
       try {
-        const response = await fetch("http://localhost:8000/upload", {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/upload`, {
           method: "POST",
           body: formData,
         });
