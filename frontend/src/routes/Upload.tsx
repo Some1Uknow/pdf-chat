@@ -58,6 +58,7 @@ export default function Upload() {
       navigate("/chat");
     } catch (error) {
       toast.error("Failed to upload PDF. Please try again.");
+      console.error("Upload error:", error);
     } finally {
       setIsUploading(false);
     }

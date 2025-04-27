@@ -30,6 +30,7 @@ const Upload = () => {
         setError(null);
       } catch (err) {
         setError("Failed to load files. Please try again later.");
+        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -55,9 +56,10 @@ const Upload = () => {
         toast.error("Failed to delete file");
         throw new Error("Failed to delete file");
       }
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to delete file");
       setError("Failed to delete file. Please try again.");
+      console.log(error);
     }
   };
 

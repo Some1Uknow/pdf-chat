@@ -65,6 +65,7 @@ export default function Component() {
     } catch (error) {
       toast.dismiss();
       toast.error("Failed to send message. Please try again.");
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -88,6 +89,7 @@ export default function Component() {
       toast.success("Memory cleared successfully!");
     } else {
       toast.error("Failed to clear memory. Please try again.");
+
     }
   };
 
@@ -118,6 +120,7 @@ export default function Component() {
         toast.success("PDF uploaded successfully!");
       } catch (error) {
         toast.error("Failed to upload PDF. Please try again.");
+        console.error("Upload error:", error);
       }
     } else {
       toast.error("Please upload a valid PDF file.");

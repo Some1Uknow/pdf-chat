@@ -1,4 +1,4 @@
-import { ArrowRight, MessageSquare, FileText, Zap, Lock, CheckCircle } from "lucide-react";
+import { ArrowRight, MessageSquare, FileText, Zap, Lock } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 interface FeatureCardProps {
