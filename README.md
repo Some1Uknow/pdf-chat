@@ -31,6 +31,10 @@ PDF Chat is a modern web application that allows users to upload PDF documents a
   - Option to delete documents and their associated vectors
   - Local document processing and storage
 
+# Architecture 
+
+![alt text](architecture-1.png)
+
 ## 🚀 Getting Started
 
 ### Prerequisites
